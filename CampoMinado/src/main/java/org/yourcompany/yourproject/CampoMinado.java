@@ -4,12 +4,12 @@
 
 package org.yourcompany.yourproject;
 
-import org.yourcompany.yourproject.model.Tabuleiro;
+import org.yourcompany.yourproject.view.Tela;
 
 public class CampoMinado {
 
     public static void main(String[] args) {
-        Tabuleiro tabuleiro = new Tabuleiro(9, 9);
-        tabuleiro.criarTabuleiro();
+        Tela tela = new Tela();
+        tela.gerarTela();
     }
 }
