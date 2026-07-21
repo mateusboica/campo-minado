@@ -57,7 +57,7 @@ public class Tela {
 
                 System.out.println();
             }
-
+        System.out.println("");
         System.out.println("O que deseja fazer? (1) Abrir campo (2) Marcar campo (3) Resetar tabuleiro (4) Sair");
         String acao = scanner.nextLine();
         if (acao.equals("1")) {
@@ -70,7 +70,6 @@ public class Tela {
 
             Tabuleiro consulta = new Tabuleiro(x, y);
             Campo campoConsulta = tabuleiro.getHashMap().get(consulta);
-            System.out.println("Tem mina? " + campoConsulta.temMina);
 
             if (campoConsulta.temMina) {
                 campoConsulta.estaAberto = true;
