@@ -28,8 +28,6 @@ public class CampoController {
         Campo atual = acessarMap.get(posicao);
 
         if (atual == null || atual.estaAberto || atual.estaMarcado) {
-            System.out.println(
-                    "DEBUG: Posição inválida ou já aberta/marcada: (" + posicao.eixoX + ", " + posicao.eixoY + ")");
             return;
         }
         if (atual.temMina) {
@@ -43,7 +41,7 @@ public class CampoController {
         }
         int[][] direcoes = {
                 { -1, -1 }, { -1, 0 }, { -1, 1 }, // Esquerda (cima, meio, baixo)
-                { 0, -1 }, { 0, 1 }, // Cima e Baixo
+                { 0, -1 },             { 0, 1 }, // Cima e Baixo
                 { 1, -1 }, { 1, 0 }, { 1, 1 } // Direita (cima, meio, baixo)
         };
 
@@ -61,9 +59,5 @@ public class CampoController {
             return;
         }
         atual.estaMarcado = !atual.estaMarcado;
-    }
-
-    public LinkedHashMap<Tabuleiro, Campo> getLinkedHashMap() {
-        return new LinkedHashMap<>();
     }
 }

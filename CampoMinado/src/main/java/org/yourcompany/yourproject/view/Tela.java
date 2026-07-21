@@ -8,7 +8,6 @@ import org.yourcompany.yourproject.model.Tabuleiro;
 
 public class Tela {
 
-    int contador = 0;
     Scanner scanner = new Scanner(System.in);
     CampoController campoController = new CampoController();
 
@@ -23,39 +22,47 @@ public class Tela {
             System.out.println(" # = Campo fechado");
             System.out.println("   = Campo aberto");
             System.out.println(" X = Campo marcado\n");
-            
-        tabuleiro.getHashMap().forEach((key, value) -> {
-            if (value.estaAberto && !value.estaMarcado && !value.temMina && value.quantasMinasVizinhas == 0) {
-                System.out.print(" ");
-                contador++;
+
+            System.out.println("      x");
+            System.out.print("     ");
+            for (int coluna = 1; coluna <= tabuleiro.eixoX; coluna++) {
+                System.out.printf(" %d ", coluna);
             }
-            if (value.estaAberto && value.quantasMinasVizinhas > 0 && !value.temMina) {
-                System.out.print(" " + value.quantasMinasVizinhas + " ");
-                contador++;
+            System.out.println();
+            System.out.print("     ");
+            for (int coluna = 1; coluna <= tabuleiro.eixoX; coluna++) {
+                System.out.print(" _ ");
             }
-            if (!value.estaAberto) {
-                System.out.print(" # ");
-                contador++;
-            }
-            if (value.estaAberto && value.estaMarcado) {
-                System.out.print(" X ");
-                contador++;
-            }
-            // System.out.println("Posição: (" + key.eixoX + ", " + key.eixoY + ") - Tem
-            // Mina: " + value.temMina + ", Está Aberto: " + value.estaAberto + ", Está
-            // Marcado: " + value.estaMarcado + ", Quantas Minas Vizinhas: " +
-            // value.quantasMinasVizinhas);
-            if (contador == 9) {
+            System.out.println();
+
+            for (int linha = 1; linha <= tabuleiro.eixoY; linha++) {
+                String indicadorY = linha == 1 ? "y " : "  ";
+                System.out.printf("%s%d |", indicadorY, linha);
+
+                for (int coluna = 1; coluna <= tabuleiro.eixoX; coluna++) {
+                    Campo campo = tabuleiro.getHashMap().get(new Tabuleiro(coluna, linha));
+
+                    if (campo.estaMarcado) {
+                        System.out.print(" X ");
+                    } else if (!campo.estaAberto) {
+                        System.out.print(" # ");
+                    } else if (campo.temMina) {
+                        System.out.print(" * ");
+                    } else if (campo.quantasMinasVizinhas > 0) {
+                        System.out.print(" " + campo.quantasMinasVizinhas + " ");
+                    } else {
+                        System.out.print("   ");
+                    }
+                }
+
                 System.out.println();
-                contador = 0;
             }
-        });
 
         System.out.println("O que deseja fazer? (1) Abrir campo (2) Marcar campo (3) Resetar tabuleiro (4) Sair");
         String acao = scanner.nextLine();
         if (acao.equals("1")) {
 
-            System.out.println("Digite a posição que deseja abrir (x,y): ");
+            System.out.println("Digite a posição que deseja abrir (x,y) — x é a coluna e y é a linha: ");
             String posicao = scanner.nextLine().trim();
             String[] coordenadas = posicao.split(",");
             int x = Integer.parseInt(coordenadas[0]);
@@ -76,7 +83,7 @@ public class Tela {
         }
 
         if(acao.equals("2")){
-            System.out.println("Digite a posição que deseja marcar (x,y): ");
+            System.out.println("Digite a posição que deseja marcar (x,y) — x é a coluna e y é a linha: ");
             String posicao = scanner.nextLine();
             String[] coordenadas = posicao.split(",");
             int x = Integer.parseInt(coordenadas[0]);
