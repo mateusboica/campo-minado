@@ -1,8 +1,8 @@
-import os
-import subprocess
 import eventlet
 eventlet.monkey_patch()
 
+import os
+import subprocess
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
