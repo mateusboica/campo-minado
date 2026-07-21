@@ -1,1 +1,5 @@
-org\yourcompany\yourproject\CampoMinado.class
+org/yourcompany/yourproject/view/Tela.class
+org/yourcompany/yourproject/controller/CampoController.class
+org/yourcompany/yourproject/model/Campo.class
+org/yourcompany/yourproject/CampoMinado.class
+org/yourcompany/yourproject/model/Tabuleiro.class

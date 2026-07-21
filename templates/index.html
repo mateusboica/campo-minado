@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campo Minado — Terminal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      letter-spacing: -.04em;
+      color: #58a6ff;
+    }
+    header p {
+      color: #8b949e;
+      margin-top: 6px;
+      font-size: .9rem;
+    }
+    .terminal-wrap {
+      width: 100%;
+      max-width: 700px;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    .title-bar {
+      background: #161b22;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .title-bar span { margin-left: 8px; font-size: .8rem; color: #8b949e; }
+    #terminal { padding: 8px; background: #0d1117; }
+    .help {
+      margin-top: 16px;
+      text-align: center;
+      color: #6e7681;
+      font-size: .82rem;
+      line-height: 1.7;
+    }
+    .help kbd {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: .78rem;
+      color: #c9d1d9;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: .82rem;
+      color: #8b949e;
+    }
+    #status.connecting { color: #d29922; }
+    #status.connected { color: #3fb950; }
+    #status.error { color: #f85149; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>💣 Campo Minado</h1>
+    <p>Jogue o clássico Campo Minado direto no terminal online</p>
+  </header>
+
+  <div class="terminal-wrap">
+    <div class="title-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <span>campo-minado — terminal</span>
+    </div>
+    <div id="terminal"></div>
+  </div>
+
+  <p id="status" class="connecting">Conectando...</p>
+
+  <div class="help">
+    <p>Digite o número da ação e pressione <kbd>Enter</kbd>.</p>
+    <p>Para abrir/marcar, informe as coordenadas no formato <kbd>x,y</kbd> (ex: <kbd>3,5</kbd>).</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+  <script src="/static/socket.io.min.js"></script>
+  <script>
+    const term = new Terminal({
+      cursorBlink: true,
+      theme: {
+        background: '#0d1117',
+        foreground: '#e6edf3',
+        cursor: '#58a6ff',
+        selectionBackground: '#388bfd55',
+        black: '#0d1117',
+        brightBlack: '#6e7681',
+        red: '#ff7b72',
+        brightRed: '#ffa198',
+        green: '#3fb950',
+        brightGreen: '#56d364',
+        yellow: '#d29922',
+        brightYellow: '#e3b341',
+        blue: '#58a6ff',
+        brightBlue: '#79c0ff',
+        magenta: '#bc8cff',
+        brightMagenta: '#d2a8ff',
+        cyan: '#39c5cf',
+        brightCyan: '#56d4dd',
+        white: '#b1bac4',
+        brightWhite: '#f0f6fc',
+      },
+      fontFamily: '"Cascadia Code", "Fira Code", "Consolas", monospace',
+      fontSize: 14,
+      lineHeight: 1.25,
+      scrollback: 500,
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+    window.addEventListener('resize', () => fitAddon.fit());
+
+    const statusEl = document.getElementById('status');
+    const socket = io({ transports: ['polling'] });
+
+    let inputBuffer = '';
+
+    socket.on('connect', () => {
+      statusEl.textContent = 'Conectado ✓';
+      statusEl.className = 'connected';
+      term.focus();
+    });
+
+    socket.on('disconnect', () => {
+      statusEl.textContent = 'Desconectado';
+      statusEl.className = 'error';
+    });
+
+    socket.on('connect_error', () => {
+      statusEl.textContent = 'Erro de conexão';
+      statusEl.className = 'error';
+    });
+
+    socket.on('output', data => {
+      // Convert Unix newlines to terminal newlines
+      const text = data.data.replace(/\n/g, '\r\n');
+      term.write(text);
+    });
+
+    term.onKey(({ key, domEvent }) => {
+      const code = domEvent.keyCode;
+
+      if (code === 13) {
+        // Enter — send the buffered line + newline
+        term.write('\r\n');
+        socket.emit('input', { data: inputBuffer + '\n' });
+        inputBuffer = '';
+      } else if (code === 8) {
+        // Backspace
+        if (inputBuffer.length > 0) {
+          inputBuffer = inputBuffer.slice(0, -1);
+          term.write('\b \b');
+        }
+      } else if (key.length === 1 && !domEvent.ctrlKey && !domEvent.altKey) {
+        inputBuffer += key;
+        term.write(key);
+      }
+    });
+  </script>
+</body>
+</html>
