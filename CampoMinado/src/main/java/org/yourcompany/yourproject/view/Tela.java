@@ -7,7 +7,6 @@ import org.yourcompany.yourproject.model.Campo;
 import org.yourcompany.yourproject.model.Tabuleiro;
 
 public class Tela {
-
     Tabuleiro tabuleiro = new Tabuleiro(9, 9);
     {
         tabuleiro.criarTabuleiro();
@@ -46,7 +45,7 @@ public class Tela {
                 } else if (!campo.estaAberto) {
                     System.out.print(" # ");
                 } else if (campo.temMina) {
-                    System.out.print(" 💣 ");
+                    System.out.print(" 💣");
                 } else if (campo.quantasMinasVizinhas > 0) {
                     System.out.print(" " + campo.quantasMinasVizinhas + " ");
                 } else {
@@ -60,6 +59,7 @@ public class Tela {
 
     public void rodarJogo() {
         while (true) {
+            limparTela();
             gerarTela();
             System.out.println("");
             System.out.println("O que deseja fazer? (1) Abrir campo (2) Marcar campo (3) Resetar tabuleiro (4) Sair");
@@ -77,13 +77,16 @@ public class Tela {
 
                 if (campoConsulta.temMina) {
                     campoConsulta.estaAberto = true;
+                    limparTela();
                     gerarTela();
-                    System.out.println("Você perdeu! Havia uma mina na posição (" + x + ", " + y + ")");
-                    tabuleiro.resetarTabuleiro();
+                    System.out.println("\nVocê perdeu! Havia uma mina na posição (" + x + ", " + y + ")");
                     break;
                 }
                 campoController.abrirCampo(consulta, tabuleiro.getHashMap());
-
+                if(campoController.venceuJogo(tabuleiro.getHashMap())){
+                    System.out.println("Parabéns! Você venceu o jogo!!");
+                    break;
+                }
             }
 
             if (acao.equals("2")) {
@@ -102,6 +105,22 @@ public class Tela {
 
             if (acao.equals("4")) {
                 System.exit(0);
+            }
+        }
+    }
+
+    public void limparTela() {
+        try {
+            String sistemaOperacional = System.getProperty("os.name");
+
+            if (sistemaOperacional.contains("Windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                new ProcessBuilder("clear").inheritIO().start().waitFor();
+            }
+        } catch (Exception e) {
+            for (int i = 0; i < 50; i++) {
+                System.out.println();
             }
         }
     }

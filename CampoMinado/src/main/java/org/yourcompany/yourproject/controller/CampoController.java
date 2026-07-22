@@ -35,13 +35,12 @@ public class CampoController {
         }
         atual.estaAberto = true;
 
-
         if (atual.quantasMinasVizinhas > 0) {
             return;
         }
         int[][] direcoes = {
                 { -1, -1 }, { -1, 0 }, { -1, 1 }, // Esquerda (cima, meio, baixo)
-                { 0, -1 },             { 0, 1 }, // Cima e Baixo
+                { 0, -1 }, { 0, 1 }, // Cima e Baixo
                 { 1, -1 }, { 1, 0 }, { 1, 1 } // Direita (cima, meio, baixo)
         };
 
@@ -59,5 +58,14 @@ public class CampoController {
             return;
         }
         atual.estaMarcado = !atual.estaMarcado;
+    }
+
+    public boolean venceuJogo(LinkedHashMap<Tabuleiro, Campo> campos) {
+        for (Campo campo : campos.values()) {
+            if (!campo.temMina && !campo.estaAberto) {
+                return false;
+            }
+        }
+        return true;
     }
 }
