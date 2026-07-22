@@ -10,6 +10,6 @@ public class CampoMinado {
 
     public static void main(String[] args) {
         Tela tela = new Tela();
-        tela.gerarTela();
+        tela.rodarJogo();
     }
 }
